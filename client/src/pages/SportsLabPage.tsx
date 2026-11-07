@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 
 /** Actual sports endpoint; no guessed fixtures, scores or fake method outputs. */
 export default function SportsLabPage() {
-  const [league, setLeague] = useState<"NFL" | "NBA" | "NHL">("NFL");
+  const [league, setLeague] = useState<"NCAAF" | "NFL" | "NBA" | "NHL">("NCAAF");
   const [ascTeam, setAscTeam] = useState("");
   const [descTeam, setDescTeam] = useState("");
   const [venueName, setVenueName] = useState("");
@@ -40,12 +40,12 @@ export default function SportsLabPage() {
   }
   const inputStyle = "w-full rounded-lg border border-white/20 bg-slate-950 p-3 text-slate-100";
   return <main className="mx-auto max-w-4xl space-y-5 px-4 py-7 text-slate-100">
-    <Link href="/" className="text-cyan-300">← The Absolute</Link>
-    <header><h1 className="text-3xl font-semibold">Sports Simulation Lab</h1>
+    <p className="text-cyan-300">Agent View · Sports Prediction Absolute</p>
+    <header><h1 className="text-3xl font-semibold">Sports Prediction Absolute</h1>
       <p className="mt-2 text-slate-300">Master Sports Astrology AI · Venue Sunrise Chart · Audited symbolic verdict</p></header>
     <section className="space-y-4 rounded-2xl border border-cyan-300/20 bg-slate-900/70 p-5">
       <p className="text-sm text-slate-300">This first executable baseline uses the real event chart and weighted team-house occupancy. The full multi-method, injury/weather and 10,000-game simulator is not yet connected; symbolic points are not win probabilities.</p>
-      <label className="block">League<select className={inputStyle} value={league} onChange={e=>{setLeague(e.target.value as typeof league);setResult(null);}}><option>NFL</option><option>NBA</option><option>NHL</option></select></label>
+      <label className="block">League<select className={inputStyle} value={league} onChange={e=>{setLeague(e.target.value as typeof league);setResult(null);}}><option value="NCAAF">College Football</option><option>NFL</option><option>NBA</option><option>NHL</option></select></label>
       <div className="grid gap-3 sm:grid-cols-2">
         <label>ASC-side team<input className={inputStyle} value={ascTeam} onChange={e=>{setAscTeam(e.target.value);setResult(null);}} placeholder="Assigned favorite / ASC team"/></label>
         <label>DESC-side team<input className={inputStyle} value={descTeam} onChange={e=>{setDescTeam(e.target.value);setResult(null);}} placeholder="Opponent / DESC team"/></label>
