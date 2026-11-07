@@ -191,7 +191,7 @@ export const appRouter = router({
     predict: publicProcedure
       .input(z.object({
         id: z.string().trim().min(1).max(120),
-        league: z.enum(["NFL", "NBA", "NHL"]),
+        league: z.enum(["NCAAF", "NFL", "NBA", "NHL"]),
         scheduledDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
         scheduledTime: z.string().regex(/^\d{2}:\d{2}$/),
         venue: z.object({
