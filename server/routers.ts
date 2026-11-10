@@ -54,6 +54,7 @@ import { buildMasterPipeline } from "./master-pipeline";
 import { buildMasterGameChart } from "./simulationLab/masterGameChart";
 import { evaluatePlanetaryTeamHouses, predictSportsGame } from "./simulationLab/sportsPredictor";
 import { evaluateGameMethods } from "../shared/simulationLab/registry";
+import { runSymbolicScenarios } from "./simulationLab/scenarios";
 
 
 const chartInput = z.object({
@@ -191,7 +192,7 @@ export const appRouter = router({
     predict: publicProcedure
       .input(z.object({
         id: z.string().trim().min(1).max(120),
-        league: z.enum(["NCAAF", "NFL", "NBA", "NHL"]),
+        league: z.enum(["NCAAF", "NCAAB", "NCAAW", "NFL", "NBA", "NHL"]),
         scheduledDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
         scheduledTime: z.string().regex(/^\d{2}:\d{2}$/),
         venue: z.object({
@@ -202,11 +203,12 @@ export const appRouter = router({
         }),
         ascTeam: z.string().trim().min(1).max(120),
         descTeam: z.string().trim().min(1).max(120),
+        simulationCount: z.union([z.literal(1), z.literal(200), z.literal(1000), z.literal(10000)]).default(1000),
       }))
       .mutation(async ({ input }) => {
         const { snapshot, chart } = await buildMasterGameChart({
           ...input,
-          chartVersion: "sports-master-2026.1",
+          chartVersion: "sports-master-2026.2",
         });
         const methods = evaluateGameMethods(snapshot, [{
           id: "sports-team-house-occupancy",
@@ -214,7 +216,8 @@ export const appRouter = router({
           evaluate: () => evaluatePlanetaryTeamHouses(chart),
         }]);
         const prediction = await predictSportsGame(snapshot, methods);
-        return { snapshot, methods, prediction };
+        const scenarios = runSymbolicScenarios(snapshot.id, methods, input.simulationCount);
+        return { snapshot, methods, prediction, scenarios };
       }),
   }),
   hybrid: router({
