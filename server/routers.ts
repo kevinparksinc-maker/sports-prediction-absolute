@@ -52,7 +52,7 @@ import { buildUnifiedMasterChart, getMasterNatalChart } from "./masterChart/buil
 import { synthesizeMasterReading } from "./astrologyKnowledge/synthesis";
 import { buildMasterPipeline } from "./master-pipeline";
 import { buildMasterGameChart } from "./simulationLab/masterGameChart";
-import { evaluatePlanetaryTeamHouses, predictSportsGame } from "./simulationLab/sportsPredictor";
+import { evaluatePlanetaryTeamHouses, predictSportsGame, deterministicSportsPrediction } from "./simulationLab/sportsPredictor";
 import { evaluateGameMethods } from "../shared/simulationLab/registry";
 import { runSymbolicScenarios } from "./simulationLab/scenarios";
 
@@ -215,7 +215,7 @@ export const appRouter = router({
           name: "God/Agent event-chart team-house occupancy baseline",
           evaluate: () => evaluatePlanetaryTeamHouses(chart),
         }]);
-        const prediction = await predictSportsGame(snapshot, methods);
+        const prediction = await predictSportsGame(snapshot, methods).catch(() => deterministicSportsPrediction(snapshot, methods));
         const scenarios = runSymbolicScenarios(snapshot.id, methods, input.simulationCount);
         return { snapshot, methods, prediction, scenarios };
       }),
