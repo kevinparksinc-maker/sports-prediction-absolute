@@ -4,7 +4,8 @@ import { trpc } from "@/lib/trpc";
 
 /** Actual sports endpoint; no guessed fixtures, scores or fake method outputs. */
 export default function SportsLabPage() {
-  const [league, setLeague] = useState<"NCAAF" | "NFL" | "NBA" | "NHL">("NCAAF");
+  const [league, setLeague] = useState<"NCAAF" | "NCAAB" | "NCAAW" | "NFL" | "NBA" | "NHL">("NCAAB");
+  const [simulationCount, setSimulationCount] = useState<1 | 200 | 1000 | 10000>(1000);
   const [ascTeam, setAscTeam] = useState("");
   const [descTeam, setDescTeam] = useState("");
   const [venueName, setVenueName] = useState("");
@@ -32,7 +33,7 @@ export default function SportsLabPage() {
     try {
       const value = await predict.mutateAsync({
         id:`${league}:${date}:${ascTeam.trim()}:${descTeam.trim()}`,
-        league, scheduledDate:date, scheduledTime:time, venue,
+        league, simulationCount, scheduledDate:date, scheduledTime:time, venue,
         ascTeam:ascTeam.trim(),descTeam:descTeam.trim(),
       });
       setResult(value);
@@ -44,8 +45,8 @@ export default function SportsLabPage() {
     <header><h1 className="text-3xl font-semibold">Sports Prediction Absolute</h1>
       <p className="mt-2 text-slate-300">Master Sports Astrology AI · Venue Sunrise Chart · Audited symbolic verdict</p></header>
     <section className="space-y-4 rounded-2xl border border-cyan-300/20 bg-slate-900/70 p-5">
-      <p className="text-sm text-slate-300">This first executable baseline uses the real event chart and weighted team-house occupancy. The full multi-method, injury/weather and 10,000-game simulator is not yet connected; symbolic points are not win probabilities.</p>
-      <label className="block">League<select className={inputStyle} value={league} onChange={e=>{setLeague(e.target.value as typeof league);setResult(null);}}><option value="NCAAF">College Football</option><option>NFL</option><option>NBA</option><option>NHL</option></select></label>
+      <p className="text-sm text-slate-300">This first executable baseline uses the real event chart and weighted team-house occupancy. A reproducible 1–10,000-run symbolic scenario engine is available. Multi-method sports factors and live injury/weather feeds are not connected; symbolic scores and scenario shares are not win probabilities.</p>
+      <label className="block">League<select className={inputStyle} value={league} onChange={e=>{setLeague(e.target.value as typeof league);setResult(null);}}><option value="NCAAF">College Football</option><option value="NCAAB">College Basketball (Men)</option><option value="NCAAW">College Basketball (Women)</option><option>NFL</option><option>NBA</option><option>NHL</option></select></label>
       <div className="grid gap-3 sm:grid-cols-2">
         <label>ASC-side team<input className={inputStyle} value={ascTeam} onChange={e=>{setAscTeam(e.target.value);setResult(null);}} placeholder="Assigned favorite / ASC team"/></label>
         <label>DESC-side team<input className={inputStyle} value={descTeam} onChange={e=>{setDescTeam(e.target.value);setResult(null);}} placeholder="Opponent / DESC team"/></label>
@@ -58,6 +59,7 @@ export default function SportsLabPage() {
         <label>Game date (venue local)<input type="date" className={inputStyle} value={date} onChange={e=>{setDate(e.target.value);setResult(null);}}/></label>
         <label>Kickoff / tipoff (venue local)<input type="time" className={inputStyle} value={time} onChange={e=>{setTime(e.target.value);setResult(null);}}/></label>
       </div>
+      <label className="block">Scenario runs<select className={inputStyle} value={simulationCount} onChange={e=>{setSimulationCount(Number(e.target.value) as typeof simulationCount);setResult(null);}}><option value={1}>1</option><option value={200}>200</option><option value={1000}>1,000</option><option value={10000}>10,000</option></select></label>
       <button type="button" onClick={()=>void run()} disabled={!ready || predict.isPending} className="rounded-xl bg-cyan-700 px-5 py-3 font-semibold disabled:opacity-50">{predict.isPending?"Calculating and synthesizing…":"Run Master Sports AI"}</button>
       {predict.error && <p role="alert" className="text-rose-300">{predict.error.message}</p>}
     </section>
@@ -65,6 +67,9 @@ export default function SportsLabPage() {
       <h2 className="text-2xl font-semibold">AI verdict: {result.prediction.team ?? "No pick — tie"}</h2>
       <p className="text-slate-300">{result.prediction.reasoning}</p>
       <p className="font-medium">Symbolic tally · ASC {result.prediction.calculatedScore.asc} / DESC {result.prediction.calculatedScore.desc}</p>
+      <h3 className="font-semibold">Reproducible symbolic scenarios · {result.scenarios.runs.toLocaleString()} runs</h3>
+      <p className="text-slate-200">ASC-favored {result.scenarios.ascScenarios.toLocaleString()} · DESC-favored {result.scenarios.descScenarios.toLocaleString()} · Ties {result.scenarios.ties}</p>
+      <p className="text-sm text-amber-200">{result.scenarios.caution}</p>
       <h3 className="font-semibold">Evidence-backed method contributions</h3>
       {result.prediction.keyFactors.map((f,i)=><p key={i} className="text-sm"><strong>{f.methodId}:</strong> {f.finding} <span className="text-cyan-300">[{f.evidenceIds.join(", ")}]</span></p>)}
       <h3 className="font-semibold">Contrary evidence</h3><p>{result.prediction.contraryEvidence}</p>
