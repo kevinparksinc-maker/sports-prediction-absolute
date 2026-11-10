@@ -5,7 +5,7 @@ export type Evidence = Readonly<{ id: string; description: string; value?: numbe
 export type GameChartSnapshot = Readonly<{
   id: string;
   generatedAt: string;
-  league: "NCAAF" | "NFL" | "NBA" | "NHL";
+  league: "NCAAF" | "NCAAB" | "NCAAW" | "NFL" | "NBA" | "NHL";
   scheduledStart: string;
   venue: Readonly<{ name: string; latitude: number; longitude: number; timezone: string }>;
   ascTeam: string;
