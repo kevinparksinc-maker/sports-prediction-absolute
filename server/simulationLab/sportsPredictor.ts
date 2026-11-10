@@ -6,12 +6,12 @@ import type { ChartResult } from "../astronomy";
 
 const PLANET_WEIGHTS: Record<string, number> = {
   Sun: 5, Moon: 5, Mars: 5, Jupiter: 5, Saturn: 5, Pluto: 5,
-  Mercury: 4, Neptune: 4, Venus: 3, Uranus: 3,
+  Mercury: 4, Neptune: 4, Uranus: 3,
 };
 const NODE_WEIGHTS: Record<string, number> = { "North Node": 5, "South Node": 3 };
 
 /** Transparent experimental house-occupancy baseline, not a calibrated win model.
- * Venus is deliberately included as devotional/competitive investment.
+ * Venus is excluded from sports scoring by the configured sports rules.
  * No fabricated planetary positions and no implied probability.
  */
 export function evaluatePlanetaryTeamHouses(chart: ChartResult): MethodResult {
@@ -151,7 +151,7 @@ You are evaluating a game using recorded, calculated astrology-method outcomes, 
 Use direct modern second-person or team-centered prose. Connect WHAT → WHY → HOW → CONSEQUENCE → MEANING.
 Distinguish God View fixed background from Agent View venue-local rising houses.
 Do not invent stars, houses, aspects, injuries, weather, probabilities, historical results or unprovided matchup facts.
-Use the full Mesopotamian Venus/Inanna meaning: emotional devotion, loyalty and competitive commitment as a SYMBOLIC lens; never equate Venus with automatic weakness or guaranteed wins.
+Venus is excluded from sports scoring. Do not assign it a competitive advantage or disadvantage.
 Explain supportive and contradictory indicators and how the verdict could fail.
 The server has already determined the side from arithmetic. selectedSide must be exactly the requiredSide. If no-pick, explain a genuine tie; do not force an outcome.
 Return JSON exactly with selectedSide, reasoning (120+ chars), keyFactors array of {methodId,finding,evidenceIds}, contraryEvidence (30+ chars), conditions (30+ chars), confidence ("low" or "moderate"), methodsReviewed (every methodId exactly once).
