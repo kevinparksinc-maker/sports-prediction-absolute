@@ -118,6 +118,30 @@ export function validateSportsPrediction(
   };
 }
 
+/** A transparent result if the external reasoning API fails. Never invents game data. */
+export function deterministicSportsPrediction(snapshot: GameChartSnapshot, methods: readonly MethodResult[]): SportsPrediction {
+  const active = methods.filter(m => m.ascScore !== null && m.descScore !== null);
+  if (!active.length) throw new Error("SPORTS_PREDICTION_NO_SCORED_METHODS");
+  const asc = active.reduce((sum, m) => sum + (m.ascScore ?? 0), 0);
+  const desc = active.reduce((sum, m) => sum + (m.descScore ?? 0), 0);
+  const selectedSide = asc === desc ? "no-pick" : asc > desc ? "asc" : "desc";
+  const team = selectedSide === "asc" ? snapshot.ascTeam : selectedSide === "desc" ? snapshot.descTeam : null;
+  const factors = active.filter(m => m.evidenceIds.length > 0).map(m => ({
+    methodId: m.methodId, finding: m.what || m.why || m.methodName, evidenceIds: [...m.evidenceIds],
+  }));
+  return {
+    selectedSide, team, methodCount: methods.length,
+    calculatedScore: { asc, desc },
+    reasoning: `The recorded symbolic methods favor ${team ?? "neither side"} with ASC ${asc} and DESC ${desc} points. This is a deterministic calculation summary because the external AI analysis was unavailable; the result is not a calibrated forecast of the actual basketball or football game. The unresolved physical and team-performance conditions remain separate from chart evidence.`,
+    keyFactors: factors,
+    contraryEvidence: "The opposite team may still win. Symbolic chart weights alone do not validate an outcome forecast.",
+    conditions: "Current lineup, injuries, travel, home court or field, rest, and team quality require verified external information.",
+    confidence: "low",
+    methodsReviewed: methods.map(m => m.methodId),
+    warning: "Deterministic calculation fallback — AI analysis unavailable. Symbolic points and scenario percentages are not win probabilities.",
+  };
+}
+
 /** No fabricated judgment: LLM explains reproducible methods and must agree
  * with deterministic scores; contradictory outputs fail loudly.
  */
