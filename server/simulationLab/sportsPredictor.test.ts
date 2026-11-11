@@ -46,9 +46,15 @@ describe("Sports AI verdict evidence audit", () => {
     const bad = { ...response, keyFactors: [{ ...response.keyFactors[0], evidenceIds: ["invented"] }] };
     expect(() => validateSportsPrediction(bad, snapshot, methods)).toThrow("Unsupported evidence");
   });
-  it("rejects an AI side contradictory to deterministic scores", () => {
-    expect(() => validateSportsPrediction({ ...response, selectedSide: "desc" }, snapshot, methods))
-      .toThrow("conflicts with audited method arithmetic");
+  it("allows an independently reasoned AI side to disagree with symbolic totals", () => {
+    const result = validateSportsPrediction({ ...response, selectedSide: "desc" }, snapshot, methods);
+    expect(result.team).toBe("DESC Team");
+    expect(result.calculatedScore).toEqual({ asc: 5, desc: 3 });
+  });
+  it("permits an evidence-grounded no-pick without erasing the baseline", () => {
+    const result = validateSportsPrediction({ ...response, selectedSide: "no-pick" }, snapshot, methods);
+    expect(result.team).toBeNull();
+    expect(result.calculatedScore).toEqual({ asc: 5, desc: 3 });
   });
   it("rejects omitted method audits", () => {
     expect(() => validateSportsPrediction({ ...response, methodsReviewed: [] }, snapshot, methods))
