@@ -106,9 +106,9 @@ export function validateSportsPrediction(
       asc += m.ascScore; desc += m.descScore;
     }
   }
-  const pick = asc === desc ? "no-pick" : asc > desc ? "asc" : "desc";
-  if (result.selectedSide !== pick)
-    throw new Error("SPORTS_PREDICTION_AUDIT_FAILED: AI verdict conflicts with audited method arithmetic.");
+  // The arithmetic is an independent baseline, not a veto over a grounded AI judgment.
+  // Retain both verdicts so disagreements can be measured against real results.
+  const pick = result.selectedSide;
   return {
     ...result,
     team: pick === "asc" ? snapshot.ascTeam : pick === "desc" ? snapshot.descTeam : null,
@@ -142,8 +142,8 @@ export function deterministicSportsPrediction(snapshot: GameChartSnapshot, metho
   };
 }
 
-/** No fabricated judgment: LLM explains reproducible methods and must agree
- * with deterministic scores; contradictory outputs fail loudly.
+/** Independent, evidence-grounded AI judgment. Formula totals remain a separate baseline.
+ * A dissenting pick is valid if the model cites only calculated method evidence.
  */
 export async function predictSportsGame(
   snapshot: GameChartSnapshot,
@@ -165,7 +165,7 @@ export async function predictSportsGame(
       asc += m.ascScore; desc += m.descScore;
     }
   }
-  const requiredSide = asc === desc ? "no-pick" : asc > desc ? "asc" : "desc";
+  const baselineSide = asc === desc ? "no-pick" : asc > desc ? "asc" : "desc";
   const response = await invokeLLM({
     max_tokens: 1900,
     response_format: { type: "json_object" },
@@ -177,13 +177,13 @@ Distinguish God View fixed background from Agent View venue-local rising houses.
 Do not invent stars, houses, aspects, injuries, weather, probabilities, historical results or unprovided matchup facts.
 Venus is excluded from sports scoring. Do not assign it a competitive advantage or disadvantage.
 Explain supportive and contradictory indicators and how the verdict could fail.
-The server has already determined the side from arithmetic. selectedSide must be exactly the requiredSide. If no-pick, explain a genuine tie; do not force an outcome.
+You are the independent sports horary judge, not a narrator of the formula winner. Weigh the calculated methods and their contradictions, applying/separating testimony, team significators, receptions, the Moon, and timing ONLY where those facts are supplied. Select asc, desc, or no-pick based on your own evidence-grounded synthesis, even if you disagree with the arithmetic baseline. Explain why the decisive testimony outweighs conflicting testimony. If evidence is inconclusive choose no-pick; do not invent a tie or force certainty. The formula totals are a comparison baseline, never a required answer.
 Return JSON exactly with selectedSide, reasoning (120+ chars), keyFactors array of {methodId,finding,evidenceIds}, contraryEvidence (30+ chars), conditions (30+ chars), confidence ("low" or "moderate"), methodsReviewed (every methodId exactly once).
 Every active method with evidence MUST have at least one keyFactor using one or more evidenceIds supplied by that same method. You may use only exact evidence IDs and method IDs. Scores are symbolic points, NOT win probabilities.` },
       { role: "user", content: JSON.stringify({
         game: { id: snapshot.id, league: snapshot.league, date: snapshot.scheduledStart,
           ascTeam: snapshot.ascTeam, descTeam: snapshot.descTeam, venue: snapshot.venue },
-        requiredSide, computedSymbolicTotals: { asc, desc }, methods,
+        baselineSide, computedSymbolicTotals: { asc, desc }, methods,
         chartEvidence: snapshot.chartEvidence, physicalEvidence: snapshot.physicalEvidence,
         calculatedMasterMethods: snapshot.masterMethods?.base.map(m => ({
           id: m.id, status: m.status, frame: m.frame, name: m.name,
